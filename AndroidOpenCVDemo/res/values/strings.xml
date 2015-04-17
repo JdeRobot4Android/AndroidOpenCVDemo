@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AndroidCameraViewer</string>
+    <string name="action_settings">Settings</string>
+     <string name="menu_settings">Settings</string>
+    <string name="PortNumber">Port Number</string>
+    <string name="port">9999</string>
+    <string name="protocol">default</string>
+    <string name="ProtocolNumber">protocol</string>
+    <string name="ProtocolTitle">Protocol(default, tcp or udp)</string>
+    <string name="ipaddress">ipaddress</string>
+    <string name="ipaddresskey">ipkey</string>
+    <string name="defaultip">172.10.2.102</string>
+    <string name="application_reload">Reloading application to apply changes</string>
+	<string name="lockscreen">lockscreen</string>
+    <string name="lockscreentitle">Lock Screen</string>
+    
+
+</resources>
