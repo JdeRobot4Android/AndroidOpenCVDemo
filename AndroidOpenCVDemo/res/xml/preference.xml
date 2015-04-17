@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+
+    <PreferenceCategory android:title="ICE Settings">
+        
+		<EditTextPreference android:defaultValue="@string/port" android:key="port" android:title="@string/PortNumber"/>
+		 <EditTextPreference android:defaultValue="@string/protocol" android:key="protocol" android:title="@string/ProtocolTitle"/>    
+		<EditTextPreference android:title="@string/ipaddress" android:key="ipaddress" android:defaultValue="@string/defaultip"/>	 
+	</PreferenceCategory>
+    
+    <PreferenceCategory android:title="System Settings">
+        
+		<CheckBoxPreference android:key="@string/lockscreen" android:title="@string/lockscreentitle"/>	 
+	</PreferenceCategory>
+    
+</PreferenceScreen>
