@@ -192,6 +192,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
     List<FrameData> statistics = new ArrayList<FrameData>();
     double last_update = 0, currentframetime = 0;
+    Mat frame = null, frame2 = null, helper = null;
+    Bitmap mBitmap = null;
 
     protected Long doInBackground(jderobot.CameraPrx... urls) {
       jderobot.ImageData realdata;
@@ -220,22 +222,37 @@ public class MainActivity extends Activity implements OnClickListener {
                 Bitmap.createBitmap(realdata.description.width, realdata.description.height,
                     Bitmap.Config.ARGB_8888);
           }
+          if (frame == null || frame.rows() != realdata.description.height
+              || frame.cols() != realdata.description.width) {
+            frame = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC3);
+          }
+          if (frame2 == null || frame2.rows() != realdata.description.height
+              || frame2.cols() != realdata.description.width) {
+            frame2 = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
+          }
 
           /* Check supported image formats */
           /* For OpenCV test right now we will need a gray image */
           if (realdata.description.format.equals("NV21")) {
-            frame =
-                convertNv21ToCvGray(realdata.pixelData, realdata.description.width,
-                    realdata.description.height);
+            if (helper == null || helper.rows() != (int)(realdata.description.height * 1.5)
+                || helper.cols() != realdata.description.width) {
+              helper = new Mat((int)(realdata.description.height * 1.5), realdata.description.width, CvType.CV_8UC1);
+            }
+            helper.put(0, 0, realdata.pixelData);
+            Imgproc.cvtColor(helper, frame, Imgproc.COLOR_YUV2RGB_NV21);
           } else if (realdata.description.format.equals("RGB8")) {
-            /*frame = convertRgbToCvGray(realdata.pixelData, realdata.description.width,
-             realdata.description.height);*/
+            frame.put(0, 0, realdata.pixelData);
           }
+          /*
           Mat canny = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC1);
-          Imgproc.cvtColor(frame, canny, Imgproc.COLOR_YUV2RGBA_NV21, 4);
+          Imgproc.cvtColor(frame, canny, Imgproc.COLOR_RGB2GRAY);
           Imgproc.Canny(canny, canny, 80, 100);
-          
-          Utils.matToBitmap(canny, mBitmap); 
+
+          Imgproc.cvtColor(canny, frame2, Imgproc.COLOR_GRAY2RGBA);
+
+          Utils.matToBitmap(frame2, mBitmap);*/ 
+          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2RGBA);
+          Utils.matToBitmap(frame2, mBitmap); 
           
           imagwidth = mBitmap.getWidth();
 
@@ -303,12 +320,6 @@ public class MainActivity extends Activity implements OnClickListener {
       /* Do nothing */
     }
   }
-
-  // int Nv21ToRgba[][][] = new int[256][256][256];
-  // int[] imageRgba = null;
-  byte[] imageGray = null;
-  Mat frame;
-  Bitmap mBitmap = null;
 
   /**
    * Converts NV21 to RGBA (R + G + B + alpha)
