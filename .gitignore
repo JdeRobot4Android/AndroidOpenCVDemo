@@ -36,3 +36,7 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+
+# Every developer will have OpenCV sdk installed in their own path
+project.properties
+
