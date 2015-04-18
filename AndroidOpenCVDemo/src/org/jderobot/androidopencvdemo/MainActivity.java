@@ -234,10 +234,6 @@ public class MainActivity extends Activity implements OnClickListener {
           Mat canny = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC1);
           Imgproc.cvtColor(frame, canny, Imgproc.COLOR_YUV2RGBA_NV21, 4);
           Imgproc.Canny(canny, canny, 80, 100);
-
-          
-          Log.e("ICE", canny.toString());
-          Log.e("ICE", mBitmap.getWidth() + " "+ mBitmap.getHeight());
           
           Utils.matToBitmap(canny, mBitmap); 
           
