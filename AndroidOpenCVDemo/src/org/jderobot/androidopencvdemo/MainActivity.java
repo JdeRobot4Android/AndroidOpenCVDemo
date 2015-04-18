@@ -231,11 +231,12 @@ public class MainActivity extends Activity implements OnClickListener {
             /*frame = convertRgbToCvGray(realdata.pixelData, realdata.description.width,
              realdata.description.height);*/
           }
-          Mat canny = new Mat();
-          Imgproc.Canny(frame, canny, 5, 5);
-
-          Imgproc.cvtColor(canny, canny, Imgproc.COLOR_GRAY2RGBA, 4);
-          Utils.matToBitmap(canny, mBitmap);
+          Mat canny = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC1);
+          Imgproc.cvtColor(frame, canny, Imgproc.COLOR_YUV2RGBA_NV21, 4);
+          Imgproc.Canny(canny, canny, 80, 100);
+          
+          Utils.matToBitmap(canny, mBitmap); 
+          
           imagwidth = mBitmap.getWidth();
 
           imagheight = mBitmap.getHeight();
@@ -362,7 +363,8 @@ public class MainActivity extends Activity implements OnClickListener {
     System.arraycopy(source, 0, destination, 0, length);
     /*image = Highgui.imdecode(new MatOfByte(destination), Highgui.IMREAD_GRAYSCALE);
     return image.reshape(1, height);*/
-    image = new Mat(width, height, CvType.CV_8UC1);
+    image = new Mat(height + height/2,width, CvType.CV_8UC1);
+    
     image.put(0, 0, source);
     return image;
   }
