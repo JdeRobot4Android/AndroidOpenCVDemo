@@ -39,8 +39,11 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-  /* Image View declared */
-  private ImageView imag;
+  /* Image View for original image declared */
+  private ImageView imageOriginal;
+  
+  /* Image View for image after filter declared */
+  private ImageView imageFiltered;
 
   /* Text View for FPS */
   private TextView fps_view;
@@ -111,8 +114,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
     bandwidth_view = (TextView) findViewById(R.id.textView4);
 
-    /* Set the ImageView to imag */
-    imag = (ImageView) findViewById(R.id.imageView1);
+    /* Set the ImageView to imageFiltered */
+    imageOriginal = (ImageView) findViewById(R.id.imageView1);
+    
+    /* Set the ImageView to imageFiltered */
+    imageFiltered = (ImageView) findViewById(R.id.imageView2);
 
     /* Set click listener to layout */
     rel_layout = (RelativeLayout) findViewById(R.id.layout);
@@ -165,15 +171,16 @@ public class MainActivity extends Activity implements OnClickListener {
   private Void setaspectratio() {
 
     aspect_ratio = (double) imagwidth / (double) imagheight;
-    imagheight = imag.getLayoutParams().height;
+    imagheight = imageOriginal.getLayoutParams().height;
     imagwidth = (int) (aspect_ratio * imagheight);
     Log.e("baa", imagwidth + " " + imagheight + " " + aspect_ratio);
-    // Toast.makeText(getApplicationContext(), "imagheight" + imagheight + "imagwidth" + imagwidth +
-    // aspect_ratio + imag.getLayoutParams().height + imag.getLayoutParams().width,
-    // Toast.LENGTH_LONG).show();
-    imag.getLayoutParams().height = imagheight;
-    imag.getLayoutParams().width = imagwidth;
 
+    /* Set the imageheight and imagewidth as per aspect ratio*/
+    imageOriginal.getLayoutParams().height = imagheight;
+    imageOriginal.getLayoutParams().width = imagwidth;
+    imageFiltered.getLayoutParams().height = imagheight;
+    imageFiltered.getLayoutParams().width = imagwidth;
+    
     return null;
   }
 
@@ -194,6 +201,7 @@ public class MainActivity extends Activity implements OnClickListener {
     double last_update = 0, currentframetime = 0;
     Mat frame = null, frame2 = null, helper = null;
     Bitmap mBitmap = null;
+    Bitmap mBitmapfilter = null;
 
     protected Long doInBackground(jderobot.CameraPrx... urls) {
       jderobot.ImageData realdata;
@@ -222,6 +230,14 @@ public class MainActivity extends Activity implements OnClickListener {
                 Bitmap.createBitmap(realdata.description.width, realdata.description.height,
                     Bitmap.Config.ARGB_8888);
           }
+          
+          if (mBitmapfilter == null || mBitmapfilter.getHeight() != realdata.description.height
+                  || mBitmapfilter.getWidth() != realdata.description.width) {
+                mBitmapfilter =
+                    Bitmap.createBitmap(realdata.description.width, realdata.description.height,
+                        Bitmap.Config.ARGB_8888);
+              }
+          
           if (frame == null || frame.rows() != realdata.description.height
               || frame.cols() != realdata.description.width) {
             frame = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC3);
@@ -253,6 +269,9 @@ public class MainActivity extends Activity implements OnClickListener {
           Utils.matToBitmap(frame2, mBitmap);*/ 
           Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2RGBA);
           Utils.matToBitmap(frame2, mBitmap); 
+          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+          Imgproc.Canny(frame2, frame2, 80, 100);
+          Utils.matToBitmap(frame2, mBitmapfilter); 
           
           imagwidth = mBitmap.getWidth();
 
@@ -278,7 +297,7 @@ public class MainActivity extends Activity implements OnClickListener {
             bandwidth = bytes_total / elapsed_time;
           }
           /* Show updates */
-          publishProgress(mBitmap);
+          publishProgress(mBitmap, mBitmapfilter);
           if (isCancelled())
             break;
 
@@ -307,7 +326,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
     protected void onProgressUpdate(Bitmap... mBitmap) {
       /* Set the ImageView to Bitmap on ProgressUpdate */
-      imag.setImageBitmap(mBitmap[0]);
+      imageOriginal.setImageBitmap(mBitmap[0]);
+      imageFiltered.setImageBitmap(mBitmap[1]);
       /* Update displayed fps and bandwidth data at most 2 times per second */
       if ((currentframetime - last_update) > 500) {
         fps_view.setText(" " + String.format("%.1f", fps) + " fps");
