@@ -258,23 +258,36 @@ public class MainActivity extends Activity implements OnClickListener {
             Imgproc.cvtColor(helper, frame, Imgproc.COLOR_YUV2RGB_NV21);
           } else if (realdata.description.format.equals("RGB8")) {
             frame.put(0, 0, realdata.pixelData);
-          }
-          /*
-          Mat canny = new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC1);
-          Imgproc.cvtColor(frame, canny, Imgproc.COLOR_RGB2GRAY);
-          Imgproc.Canny(canny, canny, 80, 100);
-
-          Imgproc.cvtColor(canny, frame2, Imgproc.COLOR_GRAY2RGBA);
-
-          Utils.matToBitmap(frame2, mBitmap);*/ 
+          } 
+          
           Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2RGBA);
           Utils.matToBitmap(frame2, mBitmap); 
+//          /* Gray Filter*/
+//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+//          /*Canny Filter*/
+//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+//          Imgproc.Canny(frame2, frame2, 80, 100);
+//          Utils.matToBitmap(frame2, mBitmapfilter); 
+          /*Sobel Filter*/
           Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-          Imgproc.Canny(frame2, frame2, 80, 100);
-          Utils.matToBitmap(frame2, mBitmapfilter); 
-          
-          imagwidth = mBitmap.getWidth();
+          Mat kernel = new Mat(9,9, CvType.CV_32F){
+              {
+                 put(0,0,-1);
+                 put(0,1,0);
+                 put(0,2,1);
 
+                 put(1,0-2);
+                 put(1,1,0);
+                 put(1,2,2);
+
+                 put(2,0,-1);
+                 put(2,1,0);
+                 put(2,2,1);
+              }
+           };
+          Imgproc.filter2D(frame2, frame2, -1, kernel);
+          Utils.matToBitmap(frame2, mBitmapfilter); 
+          imagwidth = mBitmap.getWidth();
           imagheight = mBitmap.getHeight();
           /* Add new frame to statistics */
           currentframetime = System.currentTimeMillis();
@@ -536,18 +549,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
     // imag.setLayoutParams(new LayoutParams(imagwidth, imagheight));
     setaspectratio();
-    // final float scale = this.getResources().getDisplayMetrics().density;
 
-    // imag.getLayoutParams().width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-    // imagwidth, getResources().getDisplayMetrics());
-    // abcd =(int) (imagwidth * scale + 0.5f);
-    // Log.e(NullFlag, abcd +"  "+ imagwidth + "  " + scale);
-    // //Toast.makeText(getApplicationContext(), (int) (imagwidth * scale + 0.5f) ,
-    // Toast.LENGTH_LONG);
-    // imag.getLayoutParams().height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-    // imagheight, getResources().getDisplayMetrics());
-    // abcd =(int) (imagheight * scale + 0.5f);
-    // Log.e(NullFlag, abcd +"  " + imagheight);
 
   }
 
