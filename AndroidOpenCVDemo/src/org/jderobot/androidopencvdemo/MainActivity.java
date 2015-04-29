@@ -8,6 +8,7 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -269,23 +270,38 @@ public class MainActivity extends Activity implements OnClickListener {
 //          Imgproc.Canny(frame2, frame2, 80, 100);
 //          Utils.matToBitmap(frame2, mBitmapfilter); 
           /*Sobel Filter*/
-          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-          Mat kernel = new Mat(9,9, CvType.CV_32F){
-              {
-                 put(0,0,-1);
-                 put(0,1,0);
-                 put(0,2,1);
-
-                 put(1,0-2);
-                 put(1,1,0);
-                 put(1,2,2);
-
-                 put(2,0,-1);
-                 put(2,1,0);
-                 put(2,2,1);
-              }
-           };
-          Imgproc.filter2D(frame2, frame2, -1, kernel);
+//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+//          Mat kernel = new Mat(9,9, CvType.CV_32F){
+//              {
+//                 put(0,0,-1);
+//                 put(0,1,0);
+//                 put(0,2,1);
+//
+//                 put(1,0-2);
+//                 put(1,1,0);
+//                 put(1,2,2);
+//
+//                 put(2,0,-1);
+//                 put(2,1,0);
+//                 put(2,2,1);
+//              }
+//           };
+//          Imgproc.filter2D(frame2, frame2, -1, kernel);
+//          Utils.matToBitmap(frame2, mBitmapfilter); 
+//          /*Laplacian Filter*/
+          /* Convert working copy to grey scale */
+          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
+          /* Apply Laplace operator:*/
+          Imgproc.Laplacian(frame2, frame2, frame2.depth(), 3, 1, 0);
+          /* Prescale values, get absolute value and apply alpha 1 and beta 0 */
+          Core.convertScaleAbs(frame2, frame2);
+          /* Convert result image back to RGB8 */
+          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
+          
+          
+          
+          
+          
           Utils.matToBitmap(frame2, mBitmapfilter); 
           imagwidth = mBitmap.getWidth();
           imagheight = mBitmap.getHeight();
