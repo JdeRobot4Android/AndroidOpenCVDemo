@@ -2,6 +2,7 @@ package org.jderobot.androidopencvdemo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.jderobot.androidopencvdemo.R;
 import org.opencv.android.BaseLoaderCallback;
@@ -12,6 +13,8 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -19,6 +22,7 @@ import jderobot.CameraPrx;
 import jderobot.DataNotExistException;
 import jderobot.HardwareFailedException;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -26,17 +30,23 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -84,9 +94,19 @@ public class MainActivity extends Activity implements OnClickListener {
   private int imagheight = 160;
 
   private int executed = 1;
+  
+  private int filternumber = 100;
 
   /* Aspect Ratio */
   private double aspect_ratio = 0;
+  
+  /*List items for drawer layout*/
+  ArrayList<NavItem> mNavItems = new ArrayList<NavItem>();
+  
+  /*Main drawer layout*/
+  private DrawerLayout mDrawerLayout;
+  ListView mDrawerList;
+  RelativeLayout mDrawerPane;
 
 
   private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -110,7 +130,32 @@ public class MainActivity extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    mNavItems.add(new NavItem("Gray", "Grayscale filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Canny", "Canny edge detector", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Sobel", "Sobel Filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Laplacian", "Apply the laplacian filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Pyramid", "Pyramid Image filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Color filter", "HSV filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Harris", "Detect Harris corners", R.drawable.ic_launcher));
 
+    
+    /* Find the drawer layout*/
+    mDrawerLayout = (DrawerLayout) findViewById(R.id.layout);
+ 
+    /*Populate the drawer layout with the filters*/
+    mDrawerPane = (RelativeLayout) findViewById(R.id.drawerPane);
+    mDrawerList = (ListView) findViewById(R.id.navList);
+    /*Set the Drawer List adapter*/
+    DrawerListAdapter adapter = new DrawerListAdapter(this, mNavItems);
+    mDrawerList.setAdapter(adapter);
+ 
+    // Drawer Item click listeners
+    mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItemFromDrawer(position);
+        }
+    });
     fps_view = (TextView) findViewById(R.id.textView2);
 
     bandwidth_view = (TextView) findViewById(R.id.textView4);
@@ -122,7 +167,7 @@ public class MainActivity extends Activity implements OnClickListener {
     imageFiltered = (ImageView) findViewById(R.id.imageView2);
 
     /* Set click listener to layout */
-    rel_layout = (RelativeLayout) findViewById(R.id.layout);
+    rel_layout = (RelativeLayout) findViewById(R.id.mainContent);
     rel_layout.setOnClickListener(this);
 
     /* Call the preferences and set them to the strings */
@@ -149,8 +194,22 @@ public class MainActivity extends Activity implements OnClickListener {
     setaspectratio();
   }
 
+  /*
+   Called when a particular item from the navigation drawer
+   is selected.
+   */
+  private void selectItemFromDrawer(int position) {
+      
+	  /*Get the filter position*/
+	  filternumber = position;
+      mDrawerList.setItemChecked(position, true);
+      setTitle(mNavItems.get(position).mTitle);
+//      // Close the drawer
+//      mDrawerLayout.closeDrawer(mDrawerPane);
+  }
+  
 
-  public void onClick(View v) {
+public void onClick(View v) {
 
     if (NullFlag == "0") {
       if (executed == 1) {
@@ -260,42 +319,128 @@ public class MainActivity extends Activity implements OnClickListener {
           } else if (realdata.description.format.equals("RGB8")) {
             frame.put(0, 0, realdata.pixelData);
           } 
-          
+        
           Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2RGBA);
           Utils.matToBitmap(frame2, mBitmap); 
-//          /* Gray Filter*/
-//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-//          /*Canny Filter*/
-//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-//          Imgproc.Canny(frame2, frame2, 80, 100);
-//          Utils.matToBitmap(frame2, mBitmapfilter); 
-//          /*Sobel Filter*/
-//          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-//          Mat gradient_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
-//          Mat gradient_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
-//          Mat abs_grad_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
-//          Mat abs_grad_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
-//          //Gradient x
-//          //Imgproc.Scharr(src_gray, grad_x, depth, 1, 0, skala, delta, Imgproc.BORDER_DEFAULT);
-//          Imgproc.Sobel(frame2, gradient_x, frame2.depth(), 1, 0, 3, 1, 0, Imgproc.BORDER_DEFAULT);
-//          Core.convertScaleAbs(gradient_x, abs_grad_x);
-//          //Gradient Y
-//          //Imgproc.Scharr(src_gray, grad_y, depth, 0, 1, skala, delta, Imgproc.BORDER_DEFAULT);
-//          Imgproc.Sobel(frame2, gradient_y, frame2.depth(), 0, 1, 3, 1, 0, Imgproc.BORDER_DEFAULT);
-//          Core.convertScaleAbs(gradient_y, abs_grad_y);
-//          Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, frame2);
-//          /*Laplacian Filter*/
-//          /* Convert working copy to grey scale */
-//          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
-//          /* Apply Laplace operator:*/
-//          Imgproc.Laplacian(frame2, frame2, frame2.depth(), 3, 1, 0);
-//          /* Prescale values, get absolute value and apply alpha 1 and beta 0 */
-//          Core.convertScaleAbs(frame2, frame2);
-//          /* Convert result image back to RGB8 */
-//          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
-          
-          
-          
+          if(filternumber==0){
+              /* Gray Filter*/
+              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+          }
+          if(filternumber==1){
+              /*Canny Filter*/
+              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+              Imgproc.Canny(frame2, frame2, 80, 100);
+              Utils.matToBitmap(frame2, mBitmapfilter); 
+          }
+          if(filternumber==2){
+              /*Sobel Filter*/
+              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
+              Mat gradient_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
+              Mat gradient_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
+              Mat abs_grad_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
+              Mat abs_grad_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
+              //Gradient x
+              //Imgproc.Scharr(src_gray, grad_x, depth, 1, 0, skala, delta, Imgproc.BORDER_DEFAULT);
+              Imgproc.Sobel(frame2, gradient_x, frame2.depth(), 1, 0, 3, 1, 0, Imgproc.BORDER_DEFAULT);
+              Core.convertScaleAbs(gradient_x, abs_grad_x);
+              //Gradient Y
+              //Imgproc.Scharr(src_gray, grad_y, depth, 0, 1, skala, delta, Imgproc.BORDER_DEFAULT);
+              Imgproc.Sobel(frame2, gradient_y, frame2.depth(), 0, 1, 3, 1, 0, Imgproc.BORDER_DEFAULT);
+              Core.convertScaleAbs(gradient_y, abs_grad_y);
+              Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, frame2);
+          }
+          if(filternumber==3){
+              /*Laplacian Filter*/
+              /* Convert working copy to grey scale */
+              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
+              /* Apply Laplace operator:*/
+              Imgproc.Laplacian(frame2, frame2, frame2.depth(), 3, 1, 0);
+              /* Prescale values, get absolute value and apply alpha 1 and beta 0 */
+              Core.convertScaleAbs(frame2, frame2);
+              /* Convert result image back to RGB8 */
+              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
+          }
+          if(filternumber==4){
+              /*Pyramid Image Filter*/
+              Mat div2 = new Mat(frame2.height()/2, frame2.width()/2, CvType.CV_8UC4);
+              Mat div4 = new Mat(frame2.height()/4, frame2.width()/4, CvType.CV_8UC4);
+              Mat div8 = new Mat(frame2.height()/8, frame2.width()/8, CvType.CV_8UC4);
+              Mat div16 = new Mat(frame2.height()/16, frame2.width()/16, CvType.CV_8UC4);
+              Mat dst = new Mat(frame2.height(), frame2.width(), CvType.CV_8UC4);
+              
+              Imgproc.pyrDown(frame2, div2);
+              Imgproc.pyrDown(div2, div4);
+              Imgproc.pyrDown(div4, div8);
+              Imgproc.pyrDown(div8, div16);
+              dst = Mat.zeros(frame2.size(), CvType.CV_8UC4);
+              
+              int w2, tmp;
+              
+              Size imagesize = frame2.size();
+              int width = (int) (imagesize.width * 3);
+              Size div2size = div2.size();
+              Size div4size = div4.size();
+              Size div8size = div8.size();
+              Size div16size = div16.size();
+              
+              for (int i = 0; i < imagesize.height / 2; i++) 
+              {
+            	    w2 = (int) (div2size.width * div2.channels());
+            	    System.arraycopy((dst.dataAddr()) + width * i, 0, (div2.dataAddr()) + w2 * i, 0, w2);
+            	    //if(i<image.height/4) {
+            	    if (i < imagesize.height / 4) {
+            	      //tmp = (image.width/2)*3;
+            	      tmp = (int) ((imagesize.width / 2) * 3);
+            	      w2 = (int) (div4size.width * div4.channels());
+            	      //memcpy((dst->imageData)+w*i+tmp, (div4->imageData)+w2*i, w2);
+            	      System.arraycopy(dst, 0, div4, 0, w2);
+            	    }
+//            	    if (i < imagesize.height / 8) {
+//            	      tmp = (int) ((imagesize.width / 2 + imagesize.width / 4) * 3);
+//            	      w2 = (int) (div8size.width * div8.channels());
+//            	      //memcpy((dst->imageData)+w*i+tmp, (div8->imageData)+w2*i, w2);
+//            	      System.arraycopy((dst.dataAddr()) + width * i + tmp, 0, (div8.dataAddr()) + w2 * i,0, w2);
+//            	    }
+//            	    if (i < imagesize.height / 16) {
+//            	      tmp = (int) ((imagesize.width / 2 + imagesize.width / 4 + imagesize.width / 8) * 3);
+//            	      w2 = (int) (div16size.width * div16.channels());
+//            	      //memcpy((dst->imageData)+w*i+tmp, (div16->imageData)+w2*i, w2);
+//            	      System.arraycopy((dst.dataAddr()) + width * i + tmp, 0, (div16.dataAddr()) + w2 * i, 0, w2);
+//            	    }
+            	}
+          	dst.copyTo(frame2);
+          }
+          if(filternumber==5){
+              /* HSV Filter*/
+              Mat HSV_mask = new Mat(frame2.height(), frame2.width(), CvType.CV_8UC4);
+              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2BGR);
+              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_BGR2HSV);
+              Core.inRange(frame2, new Scalar(110, 50, 50), new Scalar(130, 255, 255), HSV_mask);
+              //Core.bitwise_and(frame2, frame2, HSV_mask);
+//              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2BGR, 0);
+//              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_BGR2RGBA, 0);
+          }
+          if(filternumber==6){
+            /* Harris Corners*/
+        	Mat gray = new Mat(frame2.size(), CvType.CV_8UC1);
+        	//dst = cvCreateImage(cvSize(image.width,image.height), 32, 3);
+        	Mat dst = new Mat(frame2.size(), CvType.CV_32FC1);
+        	//gaux = cvCreateImage(cvSize(image.width,image.height), 8, 3);
+        	Mat gaux = new Mat(frame2.size(), CvType.CV_8UC1);
+        	Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
+        	Imgproc.cornerHarris(gray, dst, 5, 3, 0.04);
+        	dst.convertTo(gaux, gaux.type(), 1, 0);
+        	Imgproc.cvtColor(gaux, frame2, Imgproc.COLOR_GRAY2RGB);  
+          }
+
+//          /* Hough Circles*/
+//          Mat gray = new Mat(frame2.size(), CvType.CV_8UC1);
+//          Vector<Vec3f> circles;
+//          Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
+//          Size graysize=gray.size();
+//          Imgproc.GaussianBlur(gray, gray, new Size(9,9), 0, 0);
+//          Imgproc.HoughCircles(gray, helper,C, dp, minDist);
+
           Utils.matToBitmap(frame2, mBitmapfilter); 
           imagwidth = mBitmap.getWidth();
           imagheight = mBitmap.getHeight();
@@ -364,6 +509,66 @@ public class MainActivity extends Activity implements OnClickListener {
     }
   }
 
+  class NavItem {
+	    String mTitle;
+	    String mSubtitle;
+	    int mIcon;
+	 
+	    public NavItem(String title, String subtitle, int icon) {
+	        mTitle = title;
+	        mSubtitle = subtitle;
+	        mIcon = icon;
+	    }
+	}
+  
+  class DrawerListAdapter extends BaseAdapter {
+	  
+	    Context mContext;
+	    ArrayList<NavItem> mNavItems;
+	 
+	    public DrawerListAdapter(Context context, ArrayList<NavItem> navItems) {
+	        mContext = context;
+	        mNavItems = navItems;
+	    }
+	 
+	    @Override
+	    public int getCount() {
+	        return mNavItems.size();
+	    }
+	 
+	    @Override
+	    public Object getItem(int position) {
+	        return mNavItems.get(position);
+	    }
+	 
+	    @Override
+	    public long getItemId(int position) {
+	        return 0;
+	    }
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			 
+	        if (convertView == null) {
+	            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	            view = inflater.inflate(R.layout.drawer_item, null);
+	        }
+	        else {
+	            view = convertView;
+	        }
+	 
+	        TextView titleView = (TextView) view.findViewById(R.id.title);
+	        TextView subtitleView = (TextView) view.findViewById(R.id.subTitle);
+	        ImageView iconView = (ImageView) view.findViewById(R.id.icon);
+	 
+	        titleView.setText( mNavItems.get(position).mTitle );
+	        subtitleView.setText( mNavItems.get(position).mSubtitle );
+	        iconView.setImageResource(mNavItems.get(position).mIcon);
+	 
+	        return view;
+		}
+	}
   /**
    * Converts NV21 to RGBA (R + G + B + alpha)
    * 
