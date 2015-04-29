@@ -269,36 +269,30 @@ public class MainActivity extends Activity implements OnClickListener {
 //          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
 //          Imgproc.Canny(frame2, frame2, 80, 100);
 //          Utils.matToBitmap(frame2, mBitmapfilter); 
-          /*Sobel Filter*/
+//          /*Sobel Filter*/
 //          Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-//          Mat kernel = new Mat(9,9, CvType.CV_32F){
-//              {
-//                 put(0,0,-1);
-//                 put(0,1,0);
-//                 put(0,2,1);
-//
-//                 put(1,0-2);
-//                 put(1,1,0);
-//                 put(1,2,2);
-//
-//                 put(2,0,-1);
-//                 put(2,1,0);
-//                 put(2,2,1);
-//              }
-//           };
-//          Imgproc.filter2D(frame2, frame2, -1, kernel);
-//          Utils.matToBitmap(frame2, mBitmapfilter); 
+//          Mat gradient_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
+//          Mat gradient_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
+//          Mat abs_grad_x=new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4); 
+//          Mat abs_grad_y= new Mat(realdata.description.height, realdata.description.width, CvType.CV_8UC4);
+//          //Gradient x
+//          //Imgproc.Scharr(src_gray, grad_x, depth, 1, 0, skala, delta, Imgproc.BORDER_DEFAULT);
+//          Imgproc.Sobel(frame2, gradient_x, frame2.depth(), 1, 0, 3, 1, 0, Imgproc.BORDER_DEFAULT);
+//          Core.convertScaleAbs(gradient_x, abs_grad_x);
+//          //Gradient Y
+//          //Imgproc.Scharr(src_gray, grad_y, depth, 0, 1, skala, delta, Imgproc.BORDER_DEFAULT);
+//          Imgproc.Sobel(frame2, gradient_y, frame2.depth(), 0, 1, 3, 1, 0, Imgproc.BORDER_DEFAULT);
+//          Core.convertScaleAbs(gradient_y, abs_grad_y);
+//          Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, frame2);
 //          /*Laplacian Filter*/
-          /* Convert working copy to grey scale */
-          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
-          /* Apply Laplace operator:*/
-          Imgproc.Laplacian(frame2, frame2, frame2.depth(), 3, 1, 0);
-          /* Prescale values, get absolute value and apply alpha 1 and beta 0 */
-          Core.convertScaleAbs(frame2, frame2);
-          /* Convert result image back to RGB8 */
-          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
-          
-          
+//          /* Convert working copy to grey scale */
+//          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
+//          /* Apply Laplace operator:*/
+//          Imgproc.Laplacian(frame2, frame2, frame2.depth(), 3, 1, 0);
+//          /* Prescale values, get absolute value and apply alpha 1 and beta 0 */
+//          Core.convertScaleAbs(frame2, frame2);
+//          /* Convert result image back to RGB8 */
+//          Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
           
           
           
