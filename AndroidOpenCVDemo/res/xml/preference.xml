@@ -6,7 +6,8 @@
         
 		<EditTextPreference android:defaultValue="@string/port" android:key="port" android:title="@string/PortNumber"/>
 		 <EditTextPreference android:defaultValue="@string/protocol" android:key="protocol" android:title="@string/ProtocolTitle"/>    
-		<EditTextPreference android:title="@string/ipaddress" android:key="ipaddress" android:defaultValue="@string/defaultip"/>	 
+		<EditTextPreference android:title="@string/ipaddress" android:key="ipaddress" android:defaultValue="@string/defaultip"/>
+		<EditTextPreference android:title="@string/proxyname" android:key="proxyname" android:defaultValue="cameraA"/>	 
 	</PreferenceCategory>
     
     <PreferenceCategory android:title="System Settings">
