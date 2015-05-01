@@ -9,6 +9,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.Rect;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -143,7 +144,7 @@ public class MainActivity extends Activity implements OnClickListener {
     
     /* Find the drawer layout*/
     mDrawerLayout = (DrawerLayout) findViewById(R.id.layout);
- 
+
     /*Populate the drawer layout with the filters*/
     mDrawerPane = (RelativeLayout) findViewById(R.id.drawerPane);
     mDrawerList = (ListView) findViewById(R.id.navList);
@@ -326,7 +327,7 @@ public void onClick(View v) {
           Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2RGBA);
           Utils.matToBitmap(frame2, mBitmap); 
           if(filternumber==0){
-              /* Gray Filter*/
+        	  /* Gray Filter*/
               Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
           }
           if(filternumber==1){
@@ -369,49 +370,25 @@ public void onClick(View v) {
               Mat div4 = new Mat(frame2.height()/4, frame2.width()/4, CvType.CV_8UC4);
               Mat div8 = new Mat(frame2.height()/8, frame2.width()/8, CvType.CV_8UC4);
               Mat div16 = new Mat(frame2.height()/16, frame2.width()/16, CvType.CV_8UC4);
-              Mat dst = new Mat(frame2.height(), frame2.width(), CvType.CV_8UC4);
+              Mat dst = Mat.zeros(frame2.size(), CvType.CV_8UC4);
+              
               
               Imgproc.pyrDown(frame2, div2);
               Imgproc.pyrDown(div2, div4);
               Imgproc.pyrDown(div4, div8);
               Imgproc.pyrDown(div8, div16);
-              dst = Mat.zeros(frame2.size(), CvType.CV_8UC4);
               
-              int w2, tmp;
-              
-              Size imagesize = frame2.size();
-              int width = (int) (imagesize.width * 3);
-              Size div2size = div2.size();
-              Size div4size = div4.size();
-              Size div8size = div8.size();
-              Size div16size = div16.size();
-              
-              for (int i = 0; i < imagesize.height / 2; i++) 
-              {
-            	    w2 = (int) (div2size.width * div2.channels());
-            	    System.arraycopy((dst.dataAddr()) + width * i, 0, (div2.dataAddr()) + w2 * i, 0, w2);
-            	    //if(i<image.height/4) {
-            	    if (i < imagesize.height / 4) {
-            	      //tmp = (image.width/2)*3;
-            	      tmp = (int) ((imagesize.width / 2) * 3);
-            	      w2 = (int) (div4size.width * div4.channels());
-            	      //memcpy((dst->imageData)+w*i+tmp, (div4->imageData)+w2*i, w2);
-            	      System.arraycopy(dst, 0, div4, 0, w2);
-            	    }
-//            	    if (i < imagesize.height / 8) {
-//            	      tmp = (int) ((imagesize.width / 2 + imagesize.width / 4) * 3);
-//            	      w2 = (int) (div8size.width * div8.channels());
-//            	      //memcpy((dst->imageData)+w*i+tmp, (div8->imageData)+w2*i, w2);
-//            	      System.arraycopy((dst.dataAddr()) + width * i + tmp, 0, (div8.dataAddr()) + w2 * i,0, w2);
-//            	    }
-//            	    if (i < imagesize.height / 16) {
-//            	      tmp = (int) ((imagesize.width / 2 + imagesize.width / 4 + imagesize.width / 8) * 3);
-//            	      w2 = (int) (div16size.width * div16.channels());
-//            	      //memcpy((dst->imageData)+w*i+tmp, (div16->imageData)+w2*i, w2);
-//            	      System.arraycopy((dst.dataAddr()) + width * i + tmp, 0, (div16.dataAddr()) + w2 * i, 0, w2);
-//            	    }
-            	}
-          	dst.copyTo(frame2);
+              Rect roi2 = new Rect(0,0,div2.cols(),div2.rows());
+              Rect roi4 = new Rect(div2.cols(),0,div4.cols(),div4.rows());
+              Rect roi8 = new Rect(div2.cols()+div4.cols(),0,div8.cols(),div8.rows());
+              Rect roi16 = new Rect(div2.cols()+div4.cols()+div8.cols(),0,div16.cols(),div16.rows());
+
+              div2.copyTo(dst.submat(roi2));
+              div4.copyTo(dst.submat(roi4));
+              div8.copyTo(dst.submat(roi8));
+              div16.copyTo(dst.submat(roi16));
+          	
+          	  dst.copyTo(frame2);
           }
           if(filternumber==5){
               /* HSV Filter*/
