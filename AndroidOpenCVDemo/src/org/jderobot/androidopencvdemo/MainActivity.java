@@ -2,7 +2,6 @@ package org.jderobot.androidopencvdemo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.jderobot.androidopencvdemo.R;
 import org.opencv.android.BaseLoaderCallback;
@@ -12,7 +11,6 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -77,6 +75,8 @@ public class MainActivity extends Activity implements OnClickListener {
   /* String for port */
   private String port = "9999";
 
+  /*String for proxy name*/
+  private String proxyName = "cameraA";
   /* String for ip address */
   private String ipaddress = "";
 
@@ -95,7 +95,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
   private int executed = 1;
   
-  private int filternumber = 100;
+  /*filternumber for selection of filters*/
+  private int filternumber = 0;
 
   /* Aspect Ratio */
   private double aspect_ratio = 0;
@@ -130,6 +131,7 @@ public class MainActivity extends Activity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    /*Add the filters to the menu of filters*/
     mNavItems.add(new NavItem("Gray", "Grayscale filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Canny", "Canny edge detector", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Sobel", "Sobel Filter", R.drawable.ic_launcher));
@@ -172,6 +174,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     /* Call the preferences and set them to the strings */
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    proxyName = prefs.getString("proxyname", "cameraA");
     port = prefs.getString("port", "9999");
     protocol = prefs.getString("protocol", "default");
     ipaddress = prefs.getString("ipaddress", "172.10.2.102");
@@ -688,7 +691,7 @@ public void onClick(View v) {
 
       /* Get the object proxy */
       base =
-          communicator.stringToProxy("cameraA:" + protocol + " -h " + ipaddress + " -p " + port
+          communicator.stringToProxy(proxyName+":" + protocol + " -h " + ipaddress + " -p " + port
               + " -t 1500");
       // Toast.makeText(getApplicationContext(), base.toString(), Toast.LENGTH_LONG).show();
 
@@ -740,6 +743,7 @@ public void onClick(View v) {
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
     /* Get the port, protocol and ip address */
+    proxyName = prefs.getString("proxyname", "cameraA");
     port = prefs.getString("port", "9999");
     protocol = prefs.getString("protocol", "default");
     ipaddress = prefs.getString("ipaddress", "172.10.2.102");
