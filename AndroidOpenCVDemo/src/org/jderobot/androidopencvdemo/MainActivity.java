@@ -9,6 +9,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -140,7 +141,9 @@ public class MainActivity extends Activity implements OnClickListener {
     mNavItems.add(new NavItem("Pyramid", "Pyramid Image filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Color filter", "HSV filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Harris", "Detect Harris corners", R.drawable.ic_launcher));
-
+    mNavItems.add(new NavItem("Hough Transform", "Apply Hough Transform", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Hough Circles", "Find circles using Hough Transform", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Convolution", "Perform convolution as per the selection",R.drawable.ic_launcher));
     
     /* Find the drawer layout*/
     mDrawerLayout = (DrawerLayout) findViewById(R.id.layout);
@@ -403,23 +406,117 @@ public void onClick(View v) {
           if(filternumber==6){
             /* Harris Corners*/
         	Mat gray = new Mat(frame2.size(), CvType.CV_8UC1);
-        	//dst = cvCreateImage(cvSize(image.width,image.height), 32, 3);
-        	Mat dst = new Mat(frame2.size(), CvType.CV_32FC1);
-        	//gaux = cvCreateImage(cvSize(image.width,image.height), 8, 3);
-        	Mat gaux = new Mat(frame2.size(), CvType.CV_8UC1);
-        	Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
-        	Imgproc.cornerHarris(gray, dst, 5, 3, 0.04);
-        	dst.convertTo(gaux, gaux.type(), 1, 0);
-        	Imgproc.cvtColor(gaux, frame2, Imgproc.COLOR_GRAY2RGB);  
+        	Imgproc.cvtColor( frame2, gray, Imgproc.COLOR_RGB2GRAY);
+            Mat dst, dst_norm = new Mat(frame2.size(), CvType.CV_8UC1);
+            dst = Mat.zeros(frame2.size(), CvType.CV_32FC1);
+         
+            // Detecting corners
+            Imgproc.cornerHarris( gray, dst, 7, 5, 0.05, Imgproc.BORDER_DEFAULT);
+         
+            // Normalizing
+            Core.normalize( dst, dst_norm, 0, 255, Core.NORM_MINMAX, CvType.CV_32FC1);
+            Core.convertScaleAbs( dst_norm, dst );
+         
+            int thresh = 200;
+            // Drawing a circle around corners
+            for( int j = 0; j < dst_norm.rows() ; j++ )
+            { 
+            	for( int i = 0; i < dst_norm.cols(); i++ )
+            	{
+            		if( (int) dst_norm.get(j, i)[0] > thresh )
+            		{	
+            			Core.circle(frame2, new Point( i, j ), 5, new Scalar(255), 2, 8, 0 );
+            		}
+            	}
+            }
           }
+          if(filternumber==7){
+        	/*Hough Transform*/
+        	Mat gray = new Mat(frame2.size(), CvType.CV_8UC4);
+          	Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
+          	Imgproc.Canny(gray, frame2, 80, 100);
+          	int hough_threshold= 50;
+          	int minLineSize = 20;
+            int lineGap = 20;
+          	Mat lines = new Mat();
+          	
+          	Imgproc.HoughLinesP(frame2, lines, 1, Math.PI/180, hough_threshold, minLineSize, lineGap);
+          	for (int x = 0; x < lines.cols(); x++) 
+            {
+                  double[] vec = lines.get(0, x);
+                  double x1 = vec[0], 
+                         y1 = vec[1],
+                         x2 = vec[2],
+                         y2 = vec[3];
+                  Point start = new Point(x1, y1);
+                  Point end = new Point(x2, y2);
 
-//          /* Hough Circles*/
-//          Mat gray = new Mat(frame2.size(), CvType.CV_8UC1);
-//          Vector<Vec3f> circles;
-//          Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
-//          Size graysize=gray.size();
-//          Imgproc.GaussianBlur(gray, gray, new Size(9,9), 0, 0);
-//          Imgproc.HoughCircles(gray, helper,C, dp, minDist);
+                  Core.line(frame2, start, end, new Scalar(255,0,0), 3);
+            }
+          }
+          if(filternumber==8){
+        	  /*Hough Circles*/
+        	  Mat gray = new Mat(frame2.size(), CvType.CV_8UC4);
+              Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
+              Size graysize = gray.size();
+              Mat circles = new Mat();
+              Imgproc.GaussianBlur(gray, gray, new Size(9,9), 0, 0);
+              //Imgproc.Canny(gray, gray, 80, 100);
+              //Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT, 1d, (double)frame2.height()/70, 200d, 100d, 0, 1000);
+              Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT, 2d, graysize.height/4);
+              //Toast.makeText(getApplicationContext(), "  "+circles.cols(), Toast.LENGTH_LONG).show();
+              Log.e("Hough"," "+ circles.cols());
+              for (int x = 0; x < circles.cols(); x++) 
+              {
+                      double vCircle[]=circles.get(0,x);
+
+                      Point center=new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
+                      int radius = (int)Math.round(vCircle[2]);
+                      // draw the circle center
+                      Core.circle(frame2, center, 3,new Scalar(0,255,0), -1, 8, 0 );
+                      // draw the circle outline
+                      Core.circle(frame2, center, radius, new Scalar(0,0,255), 3, 8, 0 );
+
+              }
+          }
+          if(filternumber==9){
+        	  /*Convolution*/
+        	  //Mat mask = new Mat(frame2.size(), CvType.CV_8UC4);
+        	  
+        	  /* We set default positive and negative sums */
+        	  double negative = 0, positive = 0;
+        	  
+        	  Mat mask = new Mat(3,3, CvType.CV_32F){
+                  {
+                     put(0,-1,0);
+                     put(-1,5,-1);
+                     put(0,-1,0);
+                  }
+                  };
+                  
+                  /* If range was not forced, calculate it */
+                  if ((positive == 0) && (negative == 0)) {
+                    /* Calculate maximum and minimum values to adjust offset and scale */
+                    for (int i = 0; i < mask.rows(); i++) {
+                      for (int j = 0; j < mask.cols(); j++) {
+                        if (mask.get(i, j)[0] > 0) {
+                          positive += mask.get(i, j)[0];
+                        } else {
+                          negative -= mask.get(i, j)[0];
+                        }
+                      }
+                    }
+                  }
+                  /* Normalize difference between negative and negative (range) to 1 (0..255) */
+                  float range = (float) (positive + negative);
+                  if (range != 0.0F) {
+//                	    mask = mask.m(mask, range);
+                	  }
+                  int ddepth = -1; /* Same pixel format as source */
+                  Point anchor = new Point(-1,-1);
+                  Imgproc.filter2D(frame2, frame2, ddepth, mask, anchor, negative);
+                  
+          }
 
           Utils.matToBitmap(frame2, mBitmapfilter); 
           imagwidth = mBitmap.getWidth();
