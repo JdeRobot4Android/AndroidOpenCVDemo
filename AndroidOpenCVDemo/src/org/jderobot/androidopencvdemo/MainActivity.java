@@ -9,14 +9,20 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.core.TermCriteria;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.Video;
 
 import jderobot.CameraPrx;
 import jderobot.DataNotExistException;
@@ -110,6 +116,8 @@ public class MainActivity extends Activity implements OnClickListener {
   private DrawerLayout mDrawerLayout;
   ListView mDrawerList;
   RelativeLayout mDrawerPane;
+  
+  Mat previous_image;
 
 
   private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
@@ -144,7 +152,7 @@ public class MainActivity extends Activity implements OnClickListener {
     mNavItems.add(new NavItem("Hough Transform", "Apply Hough Transform", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Hough Circles", "Find circles using Hough Transform", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Convolution", "Perform convolution as per the selection",R.drawable.ic_launcher));
-    
+    mNavItems.add(new NavItem("Optical Flow","Detects change in movement", R.drawable.ic_launcher));
     /* Find the drawer layout*/
     mDrawerLayout = (DrawerLayout) findViewById(R.id.layout);
 
@@ -485,14 +493,66 @@ public void onClick(View v) {
         	  
         	  /* We set default positive and negative sums */
         	  double negative = 0, positive = 0;
+        	  int number = 4;
         	  
         	  Mat mask = new Mat(3,3, CvType.CV_32F){
                   {
-                     put(0,-1,0);
-                     put(-1,5,-1);
-                     put(0,-1,0);
-                  }
-                  };
+                      put(0,-1,0);
+                      put(-1,5,-1);
+                      put(0,-1,0);
+                   }
+                   };
+                   //Log.e("Values", " "+ mask.get(0, 0).toString()+ " 0"+ " 0");
+//                   Log.e("Values", " "+ mask.get(0, 1)[0]+ " 0"+ " 1");
+//                   Log.e("Values", " "+ mask.get(0, 0)[0]+ "0 "+ " 2");
+                  switch (number) {
+                  case 0: /* Sharpenning with forzed 1:1 scale (color will saturate) */
+                    negative = 0;
+                    positive = 1;
+                  case 1: /* Sharpenning with maximum and minimum range adapted to 0..255 */
+                    mask = new Mat(3,3, CvType.CV_32F){
+                        {
+                            put(0,-1,0);
+                            put(-1,5,-1);
+                            put(0,-1,0);
+                         }
+                         };
+                    break;  
+                  case 2: /* Gaussian Blur */
+                    mask = new Mat(3,3, CvType.CV_32F){
+                        {
+                            put(0,1,0);
+                            put(1,1,1);
+                            put(0,1,0);
+                         }
+                         };
+                    break;
+                  case 3: /* Embossing with forzed 1:1 scale (color will saturate) */
+                    negative = 0;
+                    positive = 1;
+                  case 4: /* Embossing with maximum and minimum range adapted to 0..255 */
+                    mask = new Mat(3,3, CvType.CV_32F){
+                        {
+                            put(-2,-1,0);
+                            put(-1,1,1);
+                            put(0,1,2);
+                         }
+                         };
+                    break;
+                  case 5: /* Edge Detector with forzed color saturation */
+                    negative = -0.25;
+                    positive = 0.25;
+                  case 6: /* Edge Detector with maximum and minimum range adapted to 0..255 */
+                    mask = new Mat(3,3, CvType.CV_32F){
+                        {
+                            put(0,-1,0);
+                            put(-1,4,-1);
+                            put(0,-1,0);
+                         }
+                         };
+                    break;
+                }
+                 
                   
                   /* If range was not forced, calculate it */
                   if ((positive == 0) && (negative == 0)) {
@@ -500,6 +560,7 @@ public void onClick(View v) {
                     for (int i = 0; i < mask.rows(); i++) {
                       for (int j = 0; j < mask.cols(); j++) {
                         if (mask.get(i, j)[0] > 0) {
+                        	
                           positive += mask.get(i, j)[0];
                         } else {
                           negative -= mask.get(i, j)[0];
@@ -508,17 +569,81 @@ public void onClick(View v) {
                     }
                   }
                   /* Normalize difference between negative and negative (range) to 1 (0..255) */
-                  float range = (float) (positive + negative);
-                  if (range != 0.0F) {
-//                	    mask = mask.m(mask, range);
-                	  }
-                  int ddepth = -1; /* Same pixel format as source */
-                  Point anchor = new Point(-1,-1);
-                  Imgproc.filter2D(frame2, frame2, ddepth, mask, anchor, negative);
+//                  float range = (float) (positive + negative);
+//                  Log.e("Start", "Started ");
+//                  if (1==1) {
+//                	  for (int i = 0; i< mask.rows();i++){
+//                		  for(int j=0; j<mask.cols();j++){
+//                			  //mask.get(j, i)[0] = mask.get(j, i)[0]/range;
+//                			  Log.e("Values", " "+ mask.get(i, j)[0]+ " "+ j + " "+i);                		  
+//                			  }
+//                	  }
+//                	  Log.e("End", "Ended ");
+//                	  }
+//                  int ddepth = -1; /* Same pixel format as source */
+//                  Point anchor = new Point(-1,-1);
+//                  Imgproc.filter2D(frame2, frame2, ddepth, mask, anchor, negative);
                   
+          }
+          if(filternumber == 10){
+        	  /*Optical Flow*/
+        	  Mat img1 = new Mat(frame2.size(),CvType.CV_8UC1);
+        	  Mat img2 = new Mat(frame2.size(),CvType.CV_8UC1);
+        	  Imgproc.cvtColor(previous_image, img1, Imgproc.COLOR_RGB2GRAY);
+        	  Imgproc.cvtColor(frame2, img2, Imgproc.COLOR_RGB2GRAY);
+        	  int i;
+        	  int numpoints = 90;  // 300;
+        	  TermCriteria criteria = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER,20,.03);
+        	  MatOfPoint points0 = new MatOfPoint();
+        	  Size pixWinSize = new Size(15,15);
+        	  Size sizeWindow = new Size(31,31);
+        	  Imgproc.goodFeaturesToTrack(img1, points0, numpoints, .01, .01);
+        	  MatOfPoint2f points02f = new MatOfPoint2f();
+        	  points02f.fromList(points0.toList());
+        	  MatOfPoint2f points12f = new MatOfPoint2f();
+        	  MatOfByte status = new MatOfByte();
+              MatOfFloat err = new MatOfFloat();
+              Log.e("points0empty", ""+points0.empty());
+        	  if(points0.empty()==false){
+        		  Imgproc.cornerSubPix(img1, points02f, pixWinSize, new Size(-1,-1), criteria);
+        		  Video.calcOpticalFlowPyrLK(img1, img2, points02f, points12f, status, err, sizeWindow, 5);  
+        	  }
+        	  Log.e("status", ""+status.toList().size());
+        	  for (i = 0; i < numpoints; i++) {
+        	      if (status.toList().get(i) == 0)
+        	        continue;
+
+        	      int line_thickness = 5;
+        	      Scalar line_color = new Scalar(255, 0, 0);
+
+        	      Point p = new Point((int) points02f.toArray()[i].x, (int) points02f.toArray()[i].y);
+        	      Point q = new Point((int) points12f.toArray()[i].x, (int) points12f.toArray()[i].y);
+
+        	      double angle = Math.atan2((double) p.y - q.y, (double) p.x - q.x);
+        	      double hypotenuse = Math.sqrt((p.y - q.y)*(p.y - q.y) + (p.x - q.x)*(p.x - q.x));
+        	      //Log.e("Hypotenuse", " "+hypotenuse+" "+i+ " andgle" + angle);
+        	      if (hypotenuse < 10 || hypotenuse > 40)
+        	        continue;
+
+        	      /*Line*/
+        	      q.x = (int) (p.x - 1 * hypotenuse * Math.cos(angle));
+        	      q.y = (int) (p.y - 1 * hypotenuse * Math.sin(angle));
+        	      Core.line(frame2, p, q, line_color, line_thickness, Core.LINE_AA, 0);
+        	      Log.e("Hypotenuse", " "+hypotenuse+" "+i+ " andgle" + angle);
+        	      Log.e("Line","   "+q.toString()+ " "+q.x+ "  "+q.y );
+        	      /*Arrow*/
+        	      p.x = (int) (q.x + 9 * Math.cos(angle + Math.PI / 4));
+        	      p.y = (int) (q.y + 9 * Math.sin(angle + Math.PI / 4));
+        	      Core.line(frame2, p, q, line_color, line_thickness, Core.LINE_AA, 0);
+        	      p.x = (int) (q.x + 9 * Math.cos(angle - Math.PI / 4));
+        	      p.y = (int) (q.y + 9 * Math.sin(angle - Math.PI / 4));
+        	      Core.line(frame2, p, q, line_color, line_thickness, Core.LINE_AA, 0);
+        	    }
           }
 
           Utils.matToBitmap(frame2, mBitmapfilter); 
+          previous_image = new Mat(frame2.size(), CvType.CV_8UC4);
+          frame.copyTo(previous_image);
           imagwidth = mBitmap.getWidth();
           imagheight = mBitmap.getHeight();
           /* Add new frame to statistics */
