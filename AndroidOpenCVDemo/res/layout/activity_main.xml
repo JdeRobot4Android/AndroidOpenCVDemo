@@ -71,10 +71,11 @@
 
     </RelativeLayout>
     <!-- The navigation drawer -->
-      <RelativeLayout
-        android:layout_width="280dp"
+     <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/drawerPane"
+        
         android:background="@android:color/transparent"
         android:layout_gravity="start">
  
@@ -82,7 +83,7 @@
  
        <RelativeLayout
             android:id="@+id/profileBox"
-            android:layout_width="match_parent"
+            android:layout_width="280dp"
             android:layout_height="60dp"
             android:padding="8dp" >
  		    <TextView
@@ -106,7 +107,6 @@
                     android:textSize="12sp" />
  
         </RelativeLayout>
-          
         <ListView
             android:id="@+id/navList"
             android:layout_width="280dp"
@@ -115,6 +115,130 @@
             android:choiceMode="singleChoice"
             android:textColor="#ddd"
             />
+       <TextView
+           android:id="@+id/canny_bar_text"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_toRightOf="@+id/profileBox"
+           android:textSize="15dp"
+           android:text="Canny Threshold1:0\nCanny Threshold2:0"/>
+        <SeekBar
+            android:id="@+id/canny_bar_1"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/profileBox"
+            android:layout_below="@+id/canny_bar_text"
+            android:max="100"
+            android:progress="0"
+            android:secondaryProgress="0" />
+        <SeekBar
+            android:id="@+id/canny_bar_2"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/canny_bar_1"
+            android:layout_below="@+id/canny_bar_text"
+            android:max="100"
+            android:progress="0"
+            android:secondaryProgress="0" />
+        <TextView
+           android:id="@+id/hough_bar_text"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/canny_bar_2"
+           android:layout_toRightOf="@+id/profileBox"
+           android:textSize="15sp"
+           android:text="Hough Threshold:0"/>
+        <SeekBar
+            android:id="@+id/hough_bar"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/profileBox"
+            android:layout_below="@+id/hough_bar_text"
+            android:max="100"
+            android:progress="0"
+            android:secondaryProgress="0" />
+        <TextView
+           android:id="@+id/H_text"
+           android:layout_width="80dp"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/hough_bar"
+           android:layout_toRightOf="@+id/profileBox"
+           android:layout_marginBottom="20dp"
+           android:textSize="15sp"
+           android:text="H Min:0\nH Max:255"/>
+        <SeekBar
+            android:id="@+id/Hbarmin"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/hough_bar"
+            android:layout_toRightOf="@+id/H_text"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
+         <SeekBar
+            android:id="@+id/Hbarmax"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/hough_bar"
+            android:layout_toRightOf="@+id/Hbarmin"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
+          <TextView
+           android:id="@+id/S_text"
+           android:layout_width="80dp"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/H_text"
+           android:layout_toRightOf="@+id/profileBox"
+           android:layout_marginBottom="20dp"
+           android:textSize="15sp"
+           android:text="S Min:0\nS Max:255"/>
+        <SeekBar
+            android:id="@+id/Sbarmin"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/S_text"
+            android:layout_below="@+id/H_text"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
+         <SeekBar
+            android:id="@+id/Sbarmax"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/Sbarmin"
+            android:layout_below="@+id/H_text"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
+  
+         <TextView
+           android:id="@+id/V_text"
+           android:layout_width="80dp"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/S_text"
+           android:layout_toRightOf="@+id/profileBox"
+           android:layout_marginBottom="20dp"
+           android:textSize="15sp"
+           android:text="V Min:0\nV Max:255"/>
+        <SeekBar
+            android:id="@+id/Vbarmin"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/V_text"
+            android:layout_below="@+id/S_text"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
+         <SeekBar
+            android:id="@+id/Vbarmax"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/Vbarmin"
+            android:layout_below="@+id/S_text"
+            android:max="255"
+            android:progress="0"
+            android:secondaryProgress="0" />
  
     </RelativeLayout>
 
