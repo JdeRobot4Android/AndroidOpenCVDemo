@@ -1,5 +1,8 @@
 package org.jderobot.androidopencvdemo;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,7 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.CvType;
@@ -22,6 +26,7 @@ import org.opencv.core.Size;
 import org.opencv.core.TermCriteria;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.video.Video;
 
 import jderobot.CameraPrx;
@@ -33,6 +38,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.media.FaceDetector;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -181,6 +187,8 @@ public class MainActivity extends Activity implements OnClickListener {
     mNavItems.add(new NavItem("Hough Circles", "Find circles using Hough Transform", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Convolution", "Perform convolution as per the selection",R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Optical Flow","Detects change in movement", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Face Detection","Detects Face using Haar Cascade",R.drawable.ic_launcher));
+    
     /* Find the drawer layout*/
     mDrawerLayout = (DrawerLayout) findViewById(R.id.layout);
 
@@ -738,6 +746,29 @@ public void onClick(View v) {
         	      p.y = (int) (q.y + 9 * Math.sin(angle - Math.PI / 4));
         	      Core.line(frame2, p, q, line_color, line_thickness, Core.LINE_AA, 0);
         	    }
+          }
+          if(filternumber==11){
+        	  InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+              File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+              File mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+              FileOutputStream os = new FileOutputStream(mCascadeFile);
+              byte[] buffer = new byte[4096];
+              int bytesRead;
+              while ((bytesRead = is.read(buffer)) != -1) {
+                  os.write(buffer, 0, bytesRead);
+              }
+              is.close();
+              os.close();
+        	  CascadeClassifier faceDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+              MatOfRect faceDetections = new MatOfRect();
+              faceDetector.detectMultiScale(frame2, faceDetections);
+              Log.e("Face","  " +faceDetections.toArray().length);
+              for (Rect rect : faceDetections.toArray()) {
+            	  
+            	  Core.rectangle(frame2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+                          new Scalar(0, 255, 0));
+              }
+
           }
 
           Utils.matToBitmap(frame2, mBitmapfilter); 
