@@ -51,6 +51,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -117,6 +118,33 @@ public class MainActivity extends Activity implements OnClickListener {
   ListView mDrawerList;
   RelativeLayout mDrawerPane;
   
+  
+  private SeekBar cannybar1;
+  private SeekBar cannybar2;
+  private int cannybar_value1=0;
+  private int cannybar_value2=0;
+  private TextView cannybar_text;
+  
+  private SeekBar houghbar;
+  private TextView houghbar_text;
+  private int hough_threshold = 50;
+  
+  private SeekBar H_barmin;
+  private SeekBar H_barmax;
+  private SeekBar S_barmin;
+  private SeekBar S_barmax;
+  private SeekBar V_barmin;
+  private SeekBar V_barmax;
+  private TextView H_text;
+  private TextView S_text;
+  private TextView V_text;
+  private int Hmin;
+  private int Hmax;
+  private int Smin;
+  private int Smax;
+  private int Vmin;
+  private int Vmax;
+  
   Mat previous_image;
 
 
@@ -147,7 +175,7 @@ public class MainActivity extends Activity implements OnClickListener {
     mNavItems.add(new NavItem("Sobel", "Sobel Filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Laplacian", "Apply the laplacian filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Pyramid", "Pyramid Image filter", R.drawable.ic_launcher));
-    mNavItems.add(new NavItem("Color filter", "HSV filter", R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("HSV filter", "Performs HSV filter", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Harris", "Detect Harris corners", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Hough Transform", "Apply Hough Transform", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Hough Circles", "Find circles using Hough Transform", R.drawable.ic_launcher));
@@ -184,6 +212,163 @@ public class MainActivity extends Activity implements OnClickListener {
     rel_layout = (RelativeLayout) findViewById(R.id.mainContent);
     rel_layout.setOnClickListener(this);
 
+    cannybar1 = (SeekBar) findViewById(R.id.canny_bar_1);
+    cannybar2 = (SeekBar) findViewById(R.id.canny_bar_2);
+    cannybar_text = (TextView) findViewById(R.id.canny_bar_text);
+    cannybar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			cannybar_value1 = progress;
+			cannybar_text.setText("Canny Threshold1:"+cannybar_value1+"\nCanny Threshold2:"+cannybar_value2);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    cannybar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			cannybar_value2 = progress;
+			cannybar_text.setText("Canny Threshold1:"+cannybar_value1+"\nCanny Threshold2:"+cannybar_value2);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+
+    houghbar = (SeekBar) findViewById(R.id.hough_bar);
+    houghbar_text = (TextView) findViewById(R.id.hough_bar_text);
+    houghbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			hough_threshold = progress;
+			houghbar_text.setText("Hough Threshold:"+hough_threshold);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    
+    H_text = (TextView) findViewById(R.id.H_text);
+    H_barmin = (SeekBar) findViewById(R.id.Hbarmin);
+    H_barmax = (SeekBar) findViewById(R.id.Hbarmax);
+    S_text = (TextView) findViewById(R.id.S_text);
+    S_barmin = (SeekBar) findViewById(R.id.Sbarmin);
+    S_barmax = (SeekBar) findViewById(R.id.Sbarmax);
+    V_text = (TextView) findViewById(R.id.V_text);
+    V_barmin = (SeekBar) findViewById(R.id.Vbarmin);
+    V_barmax = (SeekBar) findViewById(R.id.Vbarmax);
+    
+    H_barmin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Hmin = progress;
+			H_text.setText("H Min:"+Hmin+"\nH Max:"+Hmax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    H_barmax.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Hmax = progress;
+			H_text.setText("H Min:"+Hmin+"\nH Max:"+Hmax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    
+    S_barmin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Smin = progress;
+			S_text.setText("S Min:"+Smin+"\nS Max:"+Smax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    
+    S_barmax.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Smax = progress;
+			S_text.setText("S Min:"+Smin+"\nS Max:"+Smax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    
+    V_barmin.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Vmin = progress;
+			V_text.setText("V Min:"+Vmin+"\nV Max:"+Vmax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    V_barmax.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+			Vmax = progress;
+			V_text.setText("V Min:"+Vmin+"\nV Max:"+Vmax);
+		}
+
+		public void onStartTrackingTouch(SeekBar seekBar) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void onStopTrackingTouch(SeekBar seekBar) {
+		}
+	});
+    
+    
     /* Call the preferences and set them to the strings */
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     proxyName = prefs.getString("proxyname", "cameraA");
@@ -344,7 +529,7 @@ public void onClick(View v) {
           if(filternumber==1){
               /*Canny Filter*/
               Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2GRAY);
-              Imgproc.Canny(frame2, frame2, 80, 100);
+              Imgproc.Canny(frame2, frame2, cannybar_value1, cannybar_value2);
               Utils.matToBitmap(frame2, mBitmapfilter); 
           }
           if(filternumber==2){
@@ -403,13 +588,18 @@ public void onClick(View v) {
           }
           if(filternumber==5){
               /* HSV Filter*/
-              Mat HSV_mask = new Mat(frame2.height(), frame2.width(), CvType.CV_8UC4);
-              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_RGB2BGR);
-              Imgproc.cvtColor(frame, frame2, Imgproc.COLOR_BGR2HSV);
-              Core.inRange(frame2, new Scalar(110, 50, 50), new Scalar(130, 255, 255), HSV_mask);
-              //Core.bitwise_and(frame2, frame2, HSV_mask);
-//              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2BGR, 0);
-//              Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_BGR2RGBA, 0);
+              Mat HSV_mask = new Mat(frame2.size(), CvType.CV_8UC4);
+              Mat HSV = new Mat(frame2.size(), CvType.CV_8UC4);
+              /*Convert frame to BGR and then to HSV*/
+              Imgproc.cvtColor(frame, HSV, Imgproc.COLOR_RGB2BGR);
+              Imgproc.cvtColor(HSV, HSV, Imgproc.COLOR_BGR2HSV);
+              /*Filter the HSV as per requirements and get a mask*/
+              /*For skin detection set (3,50,50) and (33,255,255)*/
+              Core.inRange(HSV, new Scalar(Hmin, Smin, Vmin), new Scalar(Hmax, Smax, Vmax), HSV_mask);
+              /*Do a bitwise AND as per the mask set destination to HSV*/
+              Core.bitwise_and(frame2, frame2, HSV, HSV_mask);
+              /*Copy the result from HSV to frame2*/
+              HSV.copyTo(frame2);
           }
           if(filternumber==6){
             /* Harris Corners*/
@@ -443,7 +633,7 @@ public void onClick(View v) {
         	Mat gray = new Mat(frame2.size(), CvType.CV_8UC4);
           	Imgproc.cvtColor(frame2, gray, Imgproc.COLOR_RGB2GRAY);
           	Imgproc.Canny(gray, frame2, 80, 100);
-          	int hough_threshold= 50;
+          	
           	int minLineSize = 20;
             int lineGap = 20;
           	Mat lines = new Mat();
@@ -489,100 +679,9 @@ public void onClick(View v) {
           }
           if(filternumber==9){
         	  /*Convolution*/
-        	  //Mat mask = new Mat(frame2.size(), CvType.CV_8UC4);
-        	  
-        	  /* We set default positive and negative sums */
-        	  double negative = 0, positive = 0;
-        	  int number = 4;
-        	  
-        	  Mat mask = new Mat(3,3, CvType.CV_32F){
-                  {
-                      put(0,-1,0);
-                      put(-1,5,-1);
-                      put(0,-1,0);
-                   }
-                   };
-                   //Log.e("Values", " "+ mask.get(0, 0).toString()+ " 0"+ " 0");
-//                   Log.e("Values", " "+ mask.get(0, 1)[0]+ " 0"+ " 1");
-//                   Log.e("Values", " "+ mask.get(0, 0)[0]+ "0 "+ " 2");
-                  switch (number) {
-                  case 0: /* Sharpenning with forzed 1:1 scale (color will saturate) */
-                    negative = 0;
-                    positive = 1;
-                  case 1: /* Sharpenning with maximum and minimum range adapted to 0..255 */
-                    mask = new Mat(3,3, CvType.CV_32F){
-                        {
-                            put(0,-1,0);
-                            put(-1,5,-1);
-                            put(0,-1,0);
-                         }
-                         };
-                    break;  
-                  case 2: /* Gaussian Blur */
-                    mask = new Mat(3,3, CvType.CV_32F){
-                        {
-                            put(0,1,0);
-                            put(1,1,1);
-                            put(0,1,0);
-                         }
-                         };
-                    break;
-                  case 3: /* Embossing with forzed 1:1 scale (color will saturate) */
-                    negative = 0;
-                    positive = 1;
-                  case 4: /* Embossing with maximum and minimum range adapted to 0..255 */
-                    mask = new Mat(3,3, CvType.CV_32F){
-                        {
-                            put(-2,-1,0);
-                            put(-1,1,1);
-                            put(0,1,2);
-                         }
-                         };
-                    break;
-                  case 5: /* Edge Detector with forzed color saturation */
-                    negative = -0.25;
-                    positive = 0.25;
-                  case 6: /* Edge Detector with maximum and minimum range adapted to 0..255 */
-                    mask = new Mat(3,3, CvType.CV_32F){
-                        {
-                            put(0,-1,0);
-                            put(-1,4,-1);
-                            put(0,-1,0);
-                         }
-                         };
-                    break;
-                }
-                 
-                  
-                  /* If range was not forced, calculate it */
-                  if ((positive == 0) && (negative == 0)) {
-                    /* Calculate maximum and minimum values to adjust offset and scale */
-                    for (int i = 0; i < mask.rows(); i++) {
-                      for (int j = 0; j < mask.cols(); j++) {
-                        if (mask.get(i, j)[0] > 0) {
-                        	
-                          positive += mask.get(i, j)[0];
-                        } else {
-                          negative -= mask.get(i, j)[0];
-                        }
-                      }
-                    }
-                  }
-                  /* Normalize difference between negative and negative (range) to 1 (0..255) */
-//                  float range = (float) (positive + negative);
-//                  Log.e("Start", "Started ");
-//                  if (1==1) {
-//                	  for (int i = 0; i< mask.rows();i++){
-//                		  for(int j=0; j<mask.cols();j++){
-//                			  //mask.get(j, i)[0] = mask.get(j, i)[0]/range;
-//                			  Log.e("Values", " "+ mask.get(i, j)[0]+ " "+ j + " "+i);                		  
-//                			  }
-//                	  }
-//                	  Log.e("End", "Ended ");
-//                	  }
-//                  int ddepth = -1; /* Same pixel format as source */
-//                  Point anchor = new Point(-1,-1);
-//                  Imgproc.filter2D(frame2, frame2, ddepth, mask, anchor, negative);
+        	  Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_RGB2GRAY);
+        	  Imgproc.GaussianBlur(frame2, frame2, new Size(15,15), 50);
+        	  Imgproc.cvtColor(frame2, frame2, Imgproc.COLOR_GRAY2RGB);
                   
           }
           if(filternumber == 10){
