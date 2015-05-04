@@ -185,7 +185,7 @@ public class MainActivity extends Activity implements OnClickListener {
     mNavItems.add(new NavItem("Harris", "Detect Harris corners", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Hough Transform", "Apply Hough Transform", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Hough Circles", "Find circles using Hough Transform", R.drawable.ic_launcher));
-    mNavItems.add(new NavItem("Convolution", "Perform convolution as per the selection",R.drawable.ic_launcher));
+    mNavItems.add(new NavItem("Convolution", "Guassian blur",R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Optical Flow","Detects change in movement", R.drawable.ic_launcher));
     mNavItems.add(new NavItem("Face Detection","Detects Face using Haar Cascade",R.drawable.ic_launcher));
     
@@ -760,9 +760,10 @@ public void onClick(View v) {
               is.close();
               os.close();
         	  CascadeClassifier faceDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+
               MatOfRect faceDetections = new MatOfRect();
               faceDetector.detectMultiScale(frame2, faceDetections);
-              Log.e("Face","  " +faceDetections.toArray().length);
+              //Log.e("Face","  " +faceDetections.toArray().length);
               for (Rect rect : faceDetections.toArray()) {
             	  
             	  Core.rectangle(frame2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),

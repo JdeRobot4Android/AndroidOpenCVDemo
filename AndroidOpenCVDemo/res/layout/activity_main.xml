@@ -119,6 +119,7 @@
            android:id="@+id/canny_bar_text"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
+           android:textColor="#fff"
            android:layout_toRightOf="@+id/profileBox"
            android:textSize="15dp"
            android:text="Canny Threshold1:0\nCanny Threshold2:0"/>
@@ -143,6 +144,7 @@
         <TextView
            android:id="@+id/hough_bar_text"
            android:layout_width="wrap_content"
+           android:textColor="#fff"
            android:layout_height="wrap_content"
            android:layout_below="@+id/canny_bar_2"
            android:layout_toRightOf="@+id/profileBox"
@@ -161,6 +163,7 @@
            android:id="@+id/H_text"
            android:layout_width="80dp"
            android:layout_height="wrap_content"
+           android:textColor="#fff"
            android:layout_below="@+id/hough_bar"
            android:layout_toRightOf="@+id/profileBox"
            android:layout_marginBottom="20dp"
@@ -187,6 +190,7 @@
           <TextView
            android:id="@+id/S_text"
            android:layout_width="80dp"
+           android:textColor="#fff"
            android:layout_height="wrap_content"
            android:layout_below="@+id/H_text"
            android:layout_toRightOf="@+id/profileBox"
@@ -216,6 +220,7 @@
            android:id="@+id/V_text"
            android:layout_width="80dp"
            android:layout_height="wrap_content"
+           android:textColor="#fff"
            android:layout_below="@+id/S_text"
            android:layout_toRightOf="@+id/profileBox"
            android:layout_marginBottom="20dp"
